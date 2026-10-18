@@ -12,11 +12,16 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-indigo-100 shadow-xs">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <h1 className="font-bold text-lg tracking-tight">sarif STUDIO</h1>
-        <nav className="flex items-center gap-6 text-sm font-medium text-gray-600">
-          <Link href="/" className="hover:text-red-600 "> Back TO Collections</Link>
+        <Link 
+          href="/" 
+          className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent"
+        >
+          EKRAM STUDIO
+        </Link>
+        <nav className="flex items-center gap-6 text-sm font-medium text-slate-600">
+          <Link href="/" className="hover:text-red-600 transition-colors">Home</Link>
         </nav>
       </div>
     </header>
