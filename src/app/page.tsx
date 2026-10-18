@@ -1,5 +1,6 @@
 import ProductCard from '@/components/ProductCard';
 import { Product } from '@/types/product';
+import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import { ShoppingBag } from 'lucide-react';
 
@@ -15,18 +16,7 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-gray-50 text-gray-900">
       {/* Navigation Bar */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <h1 className="font-bold text-lg tracking-tight">EKRAM STUDIO</h1>
-          <nav className="flex items-center gap-6 text-sm font-medium text-gray-600">
-            <Link href="/" className="hover:text-black">Home</Link>
-            <Link href="/cart" className="relative flex items-center gap-1 hover:text-black">
-              <ShoppingBag className="w-5 h-5" />
-              <span>Cart</span>
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-6 py-12">
