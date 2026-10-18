@@ -3,9 +3,20 @@ import Navbar from '@/components/Navbar';
 import { Product } from '@/types/product';
 
 async function getProducts(): Promise<Product[]> {
-  const res = await fetch('https://fakestoreapi.com/products', { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch products');
-  return res.json();
+  try {
+    const res = await fetch('https://fakestoreapi.com/products', { 
+      next: { revalidate: 60 } // Cache and revalidate every 60 seconds for performance
+    });
+    
+    if (!res.ok) {
+      throw new Error(HTTP error! status: ${res.status});
+    }
+    
+    return res.json();
+  } catch (error) {
+    console.error('Failed to fetch products from Fake Store API:', error);
+    return []; // Fallback to an empty array so the page renders gracefully
+  }
 }
 
 export default async function Home() {
@@ -32,14 +43,4 @@ export default async function Home() {
       </section>
 
       {/* Product Collection Grid */}
-      <section className="max-w-7xl mx-auto px-6 pb-20">
-        <h3 className="text-xl font-bold mb-6 text-slate-800">Curated for You</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </section>
-    </main>
-  );
-}
+      <section className="max-w-7xl mx-auto px-6
