@@ -19,6 +19,7 @@ export default function Navbar() {
         </Link>
         <nav className="flex items-center gap-6 text-sm font-medium text-slate-600">
           <Link href="/" className="hover:text-indigo-600 transition-colors">Home</Link>
+          <Link href="/audit" className="hover:text-indigo-600 transition-colors">Audit</Link>
           <Link href="/cart" className="relative flex items-center gap-1.5 hover:text-indigo-600 transition-colors">
             <ShoppingBag className="w-5 h-5 text-indigo-600" />
             <span>Cart</span>

@@ -2,6 +2,16 @@ import ProductCard from '@/components/ProductCard';
 import Navbar from '@/components/Navbar';
 import { Product } from '@/types/product';
 
+type DummyProductResponse = {
+  id: number;
+  title: string;
+  price: number;
+  description: string;
+  category: string;
+  thumbnail?: string;
+  image?: string;
+};
+
 async function getProducts(): Promise<{ products: Product[]; error: boolean }> {
   try {
     const res = await fetch('https://dummyjson.com/products?limit=20', {
@@ -10,15 +20,15 @@ async function getProducts(): Promise<{ products: Product[]; error: boolean }> {
     });
 
     if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
-    const data = await res.json();
+    const data: { products?: DummyProductResponse[] } = await res.json();
 
-    const products: Product[] = data.products.map((item: any) => ({
+    const products: Product[] = (data.products ?? []).map((item) => ({
       id: item.id,
       title: item.title,
       price: item.price,
       description: item.description,
       category: item.category,
-      image: item.thumbnail,
+      image: item.thumbnail ?? item.image ?? '',
     }));
 
     return { products, error: false };
