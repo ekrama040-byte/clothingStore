@@ -5,7 +5,14 @@ export interface Product {
   description: string;
   category: string;
   image: string;
-  rating: {
+  location?: string;
+  currency?: string;
+  sellerId?: string;
+  sellerName?: string;
+  sellerAvatar?: string;
+  createdByUser?: boolean;
+  createdAt?: string;
+  rating?: {
     rate: number;
     count: number;
   };
