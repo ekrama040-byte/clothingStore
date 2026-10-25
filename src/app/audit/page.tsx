@@ -1,17 +1,9 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useMemo, useState } from 'react';
 import Navbar from '@/components/Navbar';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
 import { BarChart3, CircleAlert, DatabaseZap, PackageCheck, TrendingUp } from 'lucide-react';
 
 type ProductCatalog = {
@@ -50,6 +42,8 @@ type OrderRecord = {
   status?: string;
   orderStatus?: string;
   items?: OrderRecord[];
+  orders?: OrderRecord[];
+  sales?: OrderRecord[];
   product?: { id?: string | number; title?: string; price?: number | string; category?: string };
 };
 
@@ -246,7 +240,18 @@ function formatCurrency(value: number): string {
 export default function AuditPage() {
   const [products, setProducts] = useState<ProductCatalog[]>([]);
   const [productError, setProductError] = useState<string | null>(null);
-  const [orders, setOrders] = useState<OrderRecord[]>([]);
+  const [orders, setOrders] = useState<OrderRecord[]>(() => {
+    if (typeof window === 'undefined') {
+      return [];
+    }
+
+    try {
+      const savedRecords = STORAGE_KEYS.flatMap((key) => parseOrderRecords(window.localStorage.getItem(key)));
+      return savedRecords;
+    } catch {
+      return [];
+    }
+  });
   const [ordersError, setOrdersError] = useState<string | null>(null);
   const [demoOverride, setDemoOverride] = useState<boolean | null>(null);
 
@@ -285,23 +290,6 @@ export default function AuditPage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      setOrders([]);
-      setOrdersError(null);
-      return;
-    }
-
-    try {
-      const savedRecords = STORAGE_KEYS.flatMap((key) => parseOrderRecords(window.localStorage.getItem(key)));
-      setOrders(savedRecords);
-      setOrdersError(null);
-    } catch {
-      setOrders([]);
-      setOrdersError('Unable to read saved completed-order records.');
-    }
-  }, []);
-
   const realSales = useMemo(() => aggregateSalesFromOrders(orders, products), [orders, products]);
   const demoSales = useMemo(() => buildDemoSales(products), [products]);
 
@@ -319,6 +307,7 @@ export default function AuditPage() {
     shortName: item.name.length > 14 ? `${item.name.slice(0, 14)}…` : item.name,
   }));
   const barColors = ['#4f46e5', '#7c3aed', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+  const maxUnitsSold = Math.max(...chartData.map((item) => item.unitsSold), 1);
 
   const statusText = hasRealSales ? 'Sales data available' : demoActive ? 'Demo Data Active' : 'No sales recorded yet';
 
@@ -431,34 +420,39 @@ export default function AuditPage() {
                   </div>
                 </div>
 
-                <div className="h-[320px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} margin={{ top: 12, right: 20, left: -10, bottom: 12 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                      <XAxis dataKey="shortName" tickLine={false} axisLine={false} tick={{ fill: '#475569', fontSize: 12 }} />
-                      <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: '#475569', fontSize: 12 }} />
-                      <Tooltip
-                        cursor={{ fill: '#eef2ff' }}
-                        formatter={(value, name, item) => {
-                          const numericValue = Array.isArray(value) ? Number(value[0] ?? 0) : Number(value ?? 0);
-                          const label = item?.payload?.name ?? 'Product';
-                          const revenue = Number(item?.payload?.totalRevenue ?? 0);
-                          return [`${numericValue} units • ${formatCurrency(revenue)}`, label];
-                        }}
-                        labelFormatter={(label) => `Product: ${label}`}
-                        contentStyle={{ borderRadius: 12, borderColor: '#e2e8f0' }}
-                      />
-                      <Bar dataKey="unitsSold" radius={[8, 8, 0, 0]}>
-                        {chartData.map((entry, index) => (
-                          <Cell
-                            key={`${entry.productId}-${index}`}
+                <div className="h-[320px] w-full rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <svg viewBox="0 0 760 280" className="h-full w-full" role="img" aria-label="Sales bar chart">
+                    <g stroke="#cbd5e1" strokeWidth="1">
+                      {[0, 1, 2, 3, 4].map((line) => (
+                        <line key={line} x1="40" x2="720" y1={30 + line * 50} y2={30 + line * 50} />
+                      ))}
+                    </g>
+
+                    {chartData.map((item, index) => {
+                      const barHeight = (item.unitsSold / maxUnitsSold) * 180;
+                      const x = 70 + index * 115;
+                      const y = 230 - barHeight;
+
+                      return (
+                        <g key={`${item.productId}-${index}`}>
+                          <rect
+                            x={x}
+                            y={y}
+                            width="56"
+                            height={barHeight}
+                            rx="10"
                             fill={barColors[index % barColors.length]}
-                            fillOpacity={index === 0 ? 1 : 0.9}
                           />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                          <text x={x + 28} y="250" textAnchor="middle" fontSize="11" fill="#475569">
+                            {item.shortName}
+                          </text>
+                          <text x={x + 28} y={y - 10} textAnchor="middle" fontSize="11" fill="#0f172a" fontWeight="700">
+                            {item.unitsSold}
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
                 </div>
               </div>
 
