@@ -8,10 +8,12 @@ export interface CartItem extends Product {
 
 interface CartState {
   cart: CartItem[];
+  favorites: number[];
   addToCart: (product: Product) => void;
   removeFromCart: (id: number) => void;
   increaseQuantity: (id: number) => void;
   decreaseQuantity: (id: number) => void;
+  toggleFavorite: (id: number) => void;
   clearCart: () => void;
 }
 
@@ -19,6 +21,7 @@ export const useCartStore = create<CartState>()(
   persist(
     (set) => ({
       cart: [],
+      favorites: [],
       addToCart: (product) =>
         set((state) => {
           const existing = state.cart.find((item) => item.id === product.id);
@@ -51,7 +54,13 @@ export const useCartStore = create<CartState>()(
               }
               return item;
             })
-            .filter(Boolean) as CartItem[], // Automatically removes item if quantity hits 0
+            .filter(Boolean) as CartItem[],
+        })),
+      toggleFavorite: (id) =>
+        set((state) => ({
+          favorites: state.favorites.includes(id)
+            ? state.favorites.filter((favoriteId) => favoriteId !== id)
+            : [...state.favorites, id],
         })),
       clearCart: () => set({ cart: [] }),
     }),

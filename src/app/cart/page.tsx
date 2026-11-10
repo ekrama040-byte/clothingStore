@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCartStore } from '@/store/useCartStore';
-import Navbar from '@/components/Navbar';
 import { Trash2 } from 'lucide-react';
 
 export default function CartPage() {
@@ -22,6 +21,7 @@ export default function CartPage() {
         </Link>
         <nav className="flex items-center gap-6 text-sm font-medium text-slate-600">
           <Link href="/" className="hover:text-red-600 transition-colors">Home</Link>
+          <Link href="/audit" className="hover:text-red-600 transition-colors">Audit</Link>
         </nav>
       </div>
     </header>
